@@ -4,6 +4,8 @@ import org.scalajs.dom.document
 import org.scalajs.dom.html.*
 
 object DomHelper:
+  export org.scalajs.dom.html.Element
+
   def div(children: Element*): Div =
     val elem = document.createElement("div")
     for child <- children do elem.appendChild(child)
