@@ -11,6 +11,7 @@ import upickle.default.*
 trait Repository:
   def getAllNotes(): Seq[Note]
   def saveNote(note: Note): Unit
+  def updateNote(note: Note): Boolean
   def deleteNote(id: String): Boolean
 
   def createNote(title: String, content: String): Note =
@@ -35,6 +36,14 @@ object Repository:
       val file = directory.resolve(s"${note.id}.json")
       val bytes = write(note).getBytes
       Files.write(file, bytes, StandardOpenOption.CREATE)
+
+    def updateNote(note: Note): Boolean =
+      val file = directory.resolve(s"${note.id}.json")
+      val bytes = write(note).getBytes
+      if Files.exists(file) then
+        Files.write(file, bytes, StandardOpenOption.TRUNCATE_EXISTING)
+        true
+      else false
 
     def deleteNote(id: String): Boolean =
       val file = directory.resolve(s"$id.json")

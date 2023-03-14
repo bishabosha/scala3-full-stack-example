@@ -3,8 +3,14 @@ package example
 import java.nio.file.Paths
 
 import cask.*
+import caskx.restApi
+
+import upickle.default.ReadWriter as Codec
 
 object WebServer extends MainRoutes:
+
+  case class AddNote(title: String, content: String) derives Codec
+
   private val repository = Repository(Paths.get("./target/data"))
 
   initialize()
@@ -29,13 +35,18 @@ object WebServer extends MainRoutes:
     val headers = contentType.map("Content-Type" -> _).toSeq
     StaticResource(s"assets/$fileName", getClass.getClassLoader, headers)
 
-  @cask.getJson("api/notes")
+  @restApi.getJson("api/notes/all")
   def getAllNotes(): Seq[Note] = repository.getAllNotes()
 
-  @cask.postJson("api/notes")
-  def createNote(title: String, content: String): Note =
-    repository.createNote(title, content)
+  @restApi.postJson("api/notes/create")
+  def createNote(jsonBody: AddNote): Note =
+    repository.createNote(jsonBody.title, jsonBody.content)
 
-  @cask.delete("api/notes/:id")
+  @restApi.deleteJson("api/notes/delete/:id")
   def deleteNote(id: String): Boolean =
     repository.deleteNote(id)
+
+  @restApi.putJson("api/notes/update/:id")
+  def updateNote(jsonBody: Note, id: String): Boolean =
+    assert(id == jsonBody.id)
+    repository.updateNote(jsonBody)

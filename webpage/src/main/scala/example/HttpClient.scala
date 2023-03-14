@@ -14,13 +14,13 @@ class HttpClient(using ExecutionContext):
 
   def getAllNotes(): Future[Seq[Note]] =
     for
-      resp <- Fetch.fetch("./api/notes").toFuture
+      resp <- Fetch.fetch("./api/notes/all").toFuture
       notes <- resp.to[Seq[Note]]
     yield notes
 
   def createNote(title: String, content: String): Future[Note] =
     val request = Request(
-      "./api/notes",
+      "./api/notes/create",
       new:
         method = HttpMethod.POST
         headers = js.Dictionary("Content-Type" -> "application/json")
@@ -33,7 +33,7 @@ class HttpClient(using ExecutionContext):
 
   def deleteNote(id: String): Future[Boolean] =
     val request = Request(
-      s"./api/notes/$id",
+      s"./api/notes/delete/$id",
       new:
         method = HttpMethod.DELETE
     )
