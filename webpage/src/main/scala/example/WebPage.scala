@@ -38,20 +38,22 @@ object WebPage:
   )
   appContainer.id = "app-container"
 
-  def scanNotesLoop(timeout: Int): Unit =
-    for notes <- service.getAllNotes() do
-      val current = activeNotes.keys.toList
-      for
-        id <- current
-        if !notes.exists(_.id == id)
-      do
+  def scanNotes(timeout: Int): Unit =
+    for
+      notes <- service.getAllNotes()
+      note <- notes
+    do
+      addNote(note)
+    service.subscribe {
+      case SubscriptionMessage.Create(note) =>
+        if !activeNotes.contains(note.id) then
+          addNote(note)
+      case SubscriptionMessage.Delete(id) =>
         deleteNote(id)
-      for
-        note <- notes
-        if !activeNotes.contains(note.id)
-      do
-        addNote(note)
-      // org.scalajs.dom.window.setTimeout(() => scanNotesLoop(timeout), timeout)
+      case SubscriptionMessage.Update(note) =>
+        for elem <- activeNotes.get(note.id) do
+          patchNote(note, elem)
+    }
 
   def deleteNote(id: String): Unit =
     activeNotes.updateWith(id) {
@@ -60,6 +62,17 @@ object WebPage:
         None
       case None => None
     }
+
+  def patchNote(note: Note, elem: Element): Unit =
+    val title = elem.childNodes.head.asInstanceOf[Heading]
+    val content = elem.childNodes(1).asInstanceOf[Paragraph]
+
+    if title.textContent != note.title then
+      title.textContent = note.title
+
+    if content.textContent != note.content then
+      content.textContent = note.content
+  end patchNote
 
   def addNote(note: Note): Unit =
     val elem = div(
@@ -82,4 +95,4 @@ object WebPage:
 
   @main def start: Unit =
     document.body.appendChild(appContainer)
-    scanNotesLoop(300)
+    scanNotes(300)

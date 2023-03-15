@@ -12,6 +12,30 @@ import upickle.default.*
 
 class HttpClient(using ExecutionContext):
 
+  private var _socket: Option[WebSocket] = None
+
+  def subscribe(op: SubscriptionMessage => Unit): Unit =
+    _socket match
+      case None =>
+        val socket = new WebSocket(s"ws://${window.location.host}/api/notes/subscribe")
+        _socket = Some(socket)
+        socket.onmessage = e =>
+          val msg = read[SubscriptionMessage](e.data.toString)
+          op(msg)
+        socket.onclose = e =>
+          _socket = None
+
+      case Some(value) => // already subscribed
+
+  def unsubscribe(): Unit =
+    _socket match
+      case Some(socket) =>
+        socket.close()
+        _socket = None
+
+      case None => // already unsubscribed
+
+
   def getAllNotes(): Future[Seq[Note]] =
     for
       resp <- Fetch.fetch("./api/notes/all").toFuture

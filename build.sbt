@@ -6,7 +6,7 @@ lazy val webpage = project
   .settings(
     scalaJSUseMainModuleInitializer := true,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "2.3.0"
+      "org.scala-js" %%% "scalajs-dom" % "2.4.0"
     )
   )
   .dependsOn(core.js)
@@ -15,8 +15,8 @@ lazy val webserver = project
   .in(file("webserver"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "cask" % "0.8.0",
-      "org.scalameta" %% "munit" % "1.0.0-M3" % Test
+      "com.lihaoyi" %% "cask" % "0.8.3",
+      "org.scalameta" %% "munit" % "1.0.0-M7" % Test
     ),
     Compile / resourceGenerators += Def.task {
       val source = (webpage / Compile / scalaJSLinkedFile).value.data
