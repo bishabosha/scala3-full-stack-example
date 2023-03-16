@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "3.2.0"
+ThisBuild / scalaVersion := "3.2.2"
 
 lazy val webpage = project
   .in(file("webpage"))
@@ -15,7 +15,7 @@ lazy val webserver = project
   .in(file("webserver"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %% "cask" % "0.8.3",
+      "com.lihaoyi" %% "cask" % "0.9.0",
       "org.scalameta" %% "munit" % "1.0.0-M7" % Test
     ),
     Compile / resourceGenerators += Def.task {
@@ -33,7 +33,7 @@ lazy val core = crossProject(JSPlatform, JVMPlatform)
   .in(file("core"))
   .settings(
     libraryDependencies ++= Seq(
-      "com.lihaoyi" %%% "upickle" % "2.0.0",
-      "org.scalameta" %%% "munit" % "1.0.0-M3" % Test
+      "com.lihaoyi" %%% "upickle" % "3.0.0",
+      "org.scalameta" %%% "munit" % "1.0.0-M7" % Test
     )
   )
