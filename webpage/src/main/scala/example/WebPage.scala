@@ -75,23 +75,31 @@ object WebPage:
   end patchNote
 
   def addNote(note: Note): Unit =
-    val elem = div(
-      h2(note.title),
-      p(note.content)
-    )
+    def patch(): Unit =
+      for elem <- activeNotes.get(note.id) do
+        patchNote(note, elem)
+    def append(): Unit =
+      val elem = div(
+        h2(note.title),
+        p(note.content)
+      )
 
-    val deleteButton = button("Delete Note")
-    deleteButton.onclick = _ =>
-      service
-        .deleteNote(note.id)
-        .map(res =>
-          if res then deleteNote(note.id)
-        )
+      val deleteButton = button("Delete Note")
+      deleteButton.onclick = _ =>
+        service
+          .deleteNote(note.id)
+          .map(res =>
+            if res then deleteNote(note.id)
+          )
 
-    elem.appendChild(deleteButton)
-    elem.className = "note"
-    activeNotes(note.id) = elem
-    appContainer.appendChild(elem)
+      elem.appendChild(deleteButton)
+      elem.className = "note"
+      activeNotes(note.id) = elem
+      appContainer.appendChild(elem)
+    end append
+    if activeNotes.contains(note.id) then patch()
+    else append()
+  end addNote
 
   @main def start: Unit =
     document.body.appendChild(appContainer)
